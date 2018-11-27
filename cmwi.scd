@@ -1,29 +1,20 @@
 s.boot;
 
 (
-var notes, on, off, prs;
+var synth, on, cc;
 
 MIDIClient.init;
 MIDIIn.connectAll;
 
-notes = Array.newClear(128);
+synth = Synth(\default, [\freq, 0, \amp, 0]);
 
 on = MIDIFunc.noteOn({ |veloc, num, chan, src|
-    notes[num] = Synth(\default, [\freq, num.midicps,
-        \amp, veloc * 0.00315]);
+    synth.set(\freq, num.midicps);
 });
 
-off = MIDIFunc.noteOff({ |veloc, num, chan, src|
-    notes[num].release;
-});
-
-prs = MIDIFunc.cc({ |func, ccNum, chan, src|
+cc = MIDIFunc.cc({ |func, ccNum, chan, src|
 	if (ccNum == 2,
-		{ ("" + func + ccNum + chan + src).postln;
-			notes.do ({ arg item, index;
-				item.set(\amp, func);
-			});
-		},
+		{ synth.set(\amp, func); },
 		{ });
 });
 
